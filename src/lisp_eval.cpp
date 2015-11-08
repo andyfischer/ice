@@ -31,6 +31,7 @@ void free_vm(VM* vm)
     decref(vm->if_s);
     decref(vm->true_s);
     decref(vm->false_s);
+    decref(vm->funcs);
     free(vm);
 }
 
@@ -56,7 +57,7 @@ Value lisp_eval(VM* vm, Value expr /*consumed*/)
     Value found = get_key(vm->funcs, function);
 
     if (!is_null(found)) {
-        // TODO
+        //as_pointer
     }
 
     // Handle 'if', using lazy evaluation.

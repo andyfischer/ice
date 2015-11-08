@@ -96,12 +96,14 @@ void test_storing_opaque_pointer()
         void* myptr = malloc(1);
         Value blob = blob_p(myptr);
         expect(blob_read_u64(blob, 0) == (u64) myptr);
+        expect(as_pointer(blob) == myptr);
         decref(blob);
         free(myptr);
     } else if (sizeof(void*) == 4) {
         void* myptr = malloc(1);
         Value blob = blob_p(myptr);
         expect(blob_read_u32(blob, 0) == (u64) myptr);
+        expect(as_pointer(blob) == myptr);
         decref(blob);
         free(myptr);
     }

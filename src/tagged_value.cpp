@@ -613,13 +613,22 @@ Value blob_p(void* ptr)
     return ptr_value(fblob_fill(new_fblob(size), (char*) &ptr, size));
 }
 
-void* as_blob_p(Value blob)
+void* as_pointer(Value blob)
 {
     const u64 size = sizeof(void*);
     if (!is_blob(blob) || blob_size(blob) != size)
         return NULL;
-    ice_assert(is_fblob(blob));
-    return (void*) &blob.fblob_ptr->data[0];
+
+    #if INTPTR_MAX == INT64_MAX
+        // 64-bit
+        return (void*) blob_read_u64(blob, 0);
+    #elif INTPTR_MAX == INT32_MAX
+        // 32-bit
+        return (void*) blob_read_u32(blob, 0);
+    #endif
+
+    ice_assert(false);
+    return NULL;
 }
 
 Value new_blob(u32 size)

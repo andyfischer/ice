@@ -178,7 +178,7 @@ Value new_blob(u32 size);
 Value from_str(const char* str);
 Value blob_s(const char* str);
 Value blob_p(void* ptr);
-void* as_blob_p(Value blob);
+void* as_pointer(Value blob);
 u32 blob_read_u32(Value blob, u64 byte_offset);
 u64 blob_read_u64(Value blob, u64 byte_offset);
 Value blob_append_s(Value blob /*consumed*/, const char* str);
