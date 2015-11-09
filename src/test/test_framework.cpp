@@ -35,6 +35,7 @@ void all_tests()
     test_suite(tagged_value_test);
     test_suite(table_test);
     test_suite(primitives_test);
+    test_suite(symbol_test);
 }
 
 void maybe_print_test_fail_header()

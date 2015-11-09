@@ -180,13 +180,19 @@ bool equals_str(Value lhs, const char* str)
 
 u32 hashcode(Value val)
 {
-    u32 result;
+    u32 result = 0;
 
     if (is_list(val)) {
         result = (u32) (EX_TAG_EMPTY_LIST << 8);
         u32 len = length(val);
         for (int i=0; i < len; i++)
             result ^= hashcode(get_index(val, i));
+    } else if (is_blob(val) || is_symbol(val)) {
+        int offset = 0;
+        for (ByteIterator it(val); it.valid(); it.advance()) {
+            result ^= it.current() << (offset*3);
+            offset = (offset + 1) % 4;
+        }
     } else {
         result = ((u32) val.raw) ^ (val.raw >> 32);
     }

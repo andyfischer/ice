@@ -20,6 +20,4 @@ void free_vm(VM* vm);
 
 Value lisp_eval(VM* vm, Value expr /*consumed*/);
 
-typedef Value (*c_eval_func)(VM* vm, Value expr);
-
 } // namespace ice

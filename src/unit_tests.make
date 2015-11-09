@@ -69,6 +69,7 @@ OBJECTS := \
 	$(OBJDIR)/lisp_parser_test.o \
 	$(OBJDIR)/list_test.o \
 	$(OBJDIR)/primitives_test.o \
+	$(OBJDIR)/symbol_test.o \
 	$(OBJDIR)/table_test.o \
 	$(OBJDIR)/tagged_value_test.o \
 	$(OBJDIR)/test_framework.o \
@@ -145,6 +146,9 @@ $(OBJDIR)/list_test.o: test/list_test.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/primitives_test.o: test/primitives_test.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+$(OBJDIR)/symbol_test.o: test/symbol_test.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/table_test.o: test/table_test.cpp

@@ -8,8 +8,22 @@
 
 namespace ice {
 
-void eval_if(VM* vm, Value expr)
+const int IF = 1;
+
+Value eval_if(VM* vm, Value expr)
 {
+    Value cond = lisp_eval(vm, take_index(expr, 1));
+
+    Value result;
+    if (cond == false_value() || cond == nil_value())
+        // False condition
+        result = take_index(expr, 3);
+    else
+        // True condition
+        result = take_index(expr, 2);
+
+    decref(expr);
+    return result;
 }
 
 VM* new_vm()
@@ -21,7 +35,7 @@ VM* new_vm()
     vm->false_s = symbol("false");
     vm->funcs = empty_table();
 
-    vm->funcs = set_key(vm->funcs, symbol("if"), blob_p((void*) eval_if));
+    vm->funcs = set_key(vm->funcs, symbol("if"), int_value(IF));
 
     return vm;
 }
@@ -56,26 +70,13 @@ Value lisp_eval(VM* vm, Value expr /*consumed*/)
 
     Value found = get_key(vm->funcs, function);
 
-    if (!is_null(found)) {
-        //as_pointer
-    }
+    if (found == nil_value())
+        return nil_value();
 
-    // Handle 'if', using lazy evaluation.
-    if (equals(function, vm->if_s)) {
-        decref(function);
+    int index = found.i;
 
-        Value cond = lisp_eval(vm, take_index(expr, 1));
-
-        Value result;
-        if (cond == false_value() || cond == nil_value())
-            // False condition
-            result = take_index(expr, 3);
-        else
-            // True condition
-            result = take_index(expr, 2);
-
-        decref(expr);
-        return result;
+    switch (index) {
+    case IF: return eval_if(vm, expr);
     }
 
     return nil_value();
