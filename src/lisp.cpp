@@ -2,11 +2,39 @@
 
 #include "common_headers.h"
 
+#include "blob.h"
+#include "lisp_eval.h"
 #include "primitive.h"
 #include "tagged_value.h"
-#include "blob.h"
 
 namespace ice {
+
+Value eval_concat(Value expr)
+{
+    return concat(list_slice(expr, 1, length(expr) - 1));
+}
+
+Value eval_if(Value expr)
+{
+    Value cond = eval(take_index(expr, 1));
+
+    Value result;
+    if (cond == false_value() || cond == nil_value())
+        // False condition
+        result = take_index(expr, 3);
+    else
+        // True condition
+        result = take_index(expr, 2);
+
+    decref(expr);
+    return result;
+}
+
+Value eval_list(Value expr)
+{
+    // simple because 'expr' is already a list.
+    return list_slice(expr, 1, length(expr) - 1);
+}
 
 const char* symbols_valid_as_identifier = "!@#$%^&*-_=+.~<>:;?/|`";
 
@@ -135,7 +163,7 @@ Value lisp_parse_multi(Value text)
     return out;
 }
 
-Value lisp_parse(Value text)
+Value parse(Value text /*consumed*/)
 {
     Value parsed = lisp_parse_multi(text);
     if (length(parsed) == 0)
@@ -144,6 +172,41 @@ Value lisp_parse(Value text)
     Value first = incref(get_index(parsed, 0));
     decref(parsed);
     return first;
+}
+
+Value parse_s(const char* str)
+{
+    return parse(blob_s(str));
+}
+
+Value eval(Value expr /*consumed*/)
+{
+    if (equals_symbol(expr, "true")) {
+        decref(expr);
+        return true_value();
+    }
+
+    if (equals_symbol(expr, "false")) {
+        decref(expr);
+        return false_value();
+    }
+
+    if (!is_list(expr))
+        return expr;
+
+    u32 len = length(expr);
+
+    Value function = eval(take_index(expr, 0));
+
+    if (equals_symbol(function, "concat"))
+        return eval_concat(expr);
+    else if (equals_symbol(function, "if"))
+        return eval_if(expr);
+    else if (equals_symbol(function, "list"))
+        return eval_list(expr);
+
+    decref(expr);
+    return nil_value();
 }
 
 } // namespace ice

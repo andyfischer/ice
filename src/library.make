@@ -66,8 +66,7 @@ endif
 OBJECTS := \
 	$(OBJDIR)/blob.o \
 	$(OBJDIR)/common.o \
-	$(OBJDIR)/lisp_eval.o \
-	$(OBJDIR)/lisp_parser.o \
+	$(OBJDIR)/lisp.o \
 	$(OBJDIR)/list.o \
 	$(OBJDIR)/primitive.o \
 	$(OBJDIR)/table.o \
@@ -138,10 +137,7 @@ $(OBJDIR)/blob.o: blob.cpp
 $(OBJDIR)/common.o: common.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/lisp_eval.o: lisp_eval.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/lisp_parser.o: lisp_parser.cpp
+$(OBJDIR)/lisp.o: lisp.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/list.o: list.cpp

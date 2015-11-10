@@ -93,6 +93,7 @@ void decref(Value value1, Value value2, Value value3, Value value4, Value value5
 // from each other.
 bool equals(Value lhs, Value rhs);
 bool equals_str(Value lhs, const char* str);
+bool equals_symbol(Value value, const char* str);
 
 void print(Value value);
 void println(Value value);
@@ -153,10 +154,11 @@ Value /*borrowed*/ get_index(Value list, int index);
 Value take_index(Value list /*maybe modified*/, int index);
 Value set_index(Value list /*consumed*/, int index, Value el /*consumed*/);
 
-
 bool list_equals(Value left, Value right);
+Value prepend(Value list /*consumed*/, Value prefix /*consumed*/);
 Value append(Value list /*consumed*/, Value suffix /*consumed*/);
-Value list_cons(Value left /*consumed*/, Value right /*consumed*/);
+Value concat(Value items /*consumed*/);
+Value cons(Value left /*consumed*/, Value right /*consumed*/);
 Value list_slice(Value list /* consumed */, int start_index, int length);
 
 // Table
@@ -184,11 +186,21 @@ u64 blob_read_u64(Value blob, u64 byte_offset);
 Value blob_append_s(Value blob /*consumed*/, const char* str);
 Value blob_flatten(Value blob /*consumed*/);
 
-// Flatten and null terminate 'blob', returning the char*.
+// Flatten and null terminate 'blob', returning a char* to its data.
 char* blob_cstr(Value* blob /*modified*/);
 
 // symbol
 Value symbol(const char* str);
 Value to_symbol(Value value /*consumed*/);
+
+// Lisp
+Value parse(Value blob /*consumed*/);
+Value parse_s(const char* str);
+Value parse_multi(Value text /*consumed*/);
+Value eval(Value expr /*consumed*/);
+
+// Parse one s-expression.
+Value parse(Value text /* consumed */);
+
 
 } // namespace ice

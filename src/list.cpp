@@ -391,6 +391,21 @@ bool list_equals(Value left, Value right)
     return true;
 }
 
+Value prepend(Value list, Value prefix)
+{
+    if (is_empty_list(list)) {
+        list = ptr_value(new_array(1, ARRAY_DEFAULT_CAPACITY_FOR_EXTEND));
+        ice_assert(is_array(list));
+        list.array_ptr->items[0] = prefix;
+        return list;
+    }
+
+    // Create a new list and cons cell
+    Array* out = new_array(1, ARRAY_DEFAULT_CAPACITY_FOR_EXTEND);
+    out->items[0] = prefix;
+    return ptr_value(new_array_node(ptr_value(out), list));
+}
+
 Value append(Value list, Value suffix)
 {
     ice_assert(is_list(list));
@@ -431,10 +446,33 @@ Value append(Value list, Value suffix)
     return ptr_value(new_array_node(list, ptr_value(right)));
 }
 
-Value list_cons(Value left, Value right)
+Value concat(Value items /*consumed*/)
 {
-    ice_assert(is_list(left));
-    ice_assert(is_list(right));
+    if (!is_list(items)) {
+        decref(items);
+        return nil_value();
+    }
+
+    int items_length = length(items);
+
+    if (items_length < 2)
+        return items;
+
+    Value out = take_index(items, 0);
+
+    for (int i=1; i < items_length; i++)
+        out = cons(out, take_index(items, i));
+
+    return out;
+}
+
+Value cons(Value left /*consumed*/, Value right /*consumed*/)
+{
+    if (!is_list(right))
+        return append(left, right);
+
+    if (!is_list(left))
+        return prepend(right, left);
 
     if (is_empty_list(left) && is_empty_list(right))
         return empty_list();
@@ -444,15 +482,21 @@ Value list_cons(Value left, Value right)
 
 Value list_slice(Value list, int start_index, int len)
 {
-    ice_assert(start_index + len <= length(list));
+    int list_length = length(list);
 
-    if (len == 0) {
+    if ((start_index >= list_length) || len == 0) {
         decref(list);
         return empty_list();
     }
 
-    if (start_index == 0 && len == length(list))
+    if (start_index + len > list_length) {
+        len = list_length - start_index;
+    }
+
+    if (start_index == 0 && len == list_length) {
+        // Base list is fine
         return list;
+    }
 
     if (is_array_slice(list) && object_is_writeable(list)) {
         // Modify in-place

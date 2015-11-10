@@ -153,6 +153,14 @@ bool equals_int(Value value, int i)
     return value.i == i;
 }
 
+bool equals_symbol(Value value, const char* str)
+{
+    if (!is_symbol(value))
+        return false;
+
+    return blob_equals_str(value, str);
+}
+
 bool equals(Value left, Value right)
 {
     if (shallow_equals(left, right))
