@@ -9,9 +9,18 @@
 
 namespace ice {
 
+Value eval_append(Value expr)
+{
+    Value out = append(eval(take_index(expr, 1)), eval(take_index(expr, 2)));
+    decref(expr);
+    return out;
+}
+
 Value eval_concat(Value expr)
 {
-    return concat(list_slice(expr, 1, length(expr) - 1));
+    Value out = concat(list_slice(expr, 1, length(expr) - 1));
+    decref(expr);
+    return out;
 }
 
 Value eval_if(Value expr)
@@ -108,6 +117,7 @@ Value consume_symbol(ByteIterator* b)
 Value parse_list(ByteIterator* b)
 {
     Value out = empty_list();
+
     while (byte_iterator_valid(b)) {
 
         u8 c = byte_iterator_current(b);
@@ -147,7 +157,7 @@ Value parse_list(ByteIterator* b)
     return out;
 }
 
-Value lisp_parse_multi(Value text)
+Value lisp_parse_multi(Value text /*consumed*/)
 {
     if (!is_blob(text)) {
         decref(text);
@@ -169,7 +179,7 @@ Value parse(Value text /*consumed*/)
     if (length(parsed) == 0)
         return empty_list();
 
-    Value first = incref(get_index(parsed, 0));
+    Value first = take_index(parsed, 0);
     decref(parsed);
     return first;
 }
@@ -197,16 +207,23 @@ Value eval(Value expr /*consumed*/)
     u32 len = length(expr);
 
     Value function = eval(take_index(expr, 0));
+    Value out;
 
-    if (equals_symbol(function, "concat"))
-        return eval_concat(expr);
+    if (equals_symbol(function, "append"))
+        out = eval_append(expr);
+    else if (equals_symbol(function, "concat"))
+        out = eval_concat(expr);
     else if (equals_symbol(function, "if"))
-        return eval_if(expr);
+        out = eval_if(expr);
     else if (equals_symbol(function, "list"))
-        return eval_list(expr);
+        out = eval_list(expr);
+    else {
+        decref(expr);
+        return nil_value();
+    }
 
-    decref(expr);
-    return nil_value();
+    decref(function);
+    return out;
 }
 
 } // namespace ice

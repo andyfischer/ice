@@ -80,6 +80,9 @@ void test_list_eval()
 
 void test_append_eval()
 {
+    Value a = eval(parse_s("(append (list 1) 2)"));
+    expect_equals(a, "[1, 2]");
+    decref(a);
 }
 
 void test_cons()
