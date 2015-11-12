@@ -147,15 +147,15 @@ void test_concat_repeat()
 void test_slice()
 {
     Value base = list_4(int_value(1), int_value(2), int_value(3), int_value(4));
-    Value a = list_slice(incref(base), 1, 2);
+    Value a = slice(incref(base), 1, 2);
     expect_equals(a, "[2, 3]");
-    Value b = list_slice(incref(base), 0, 1);
+    Value b = slice(incref(base), 0, 1);
     expect_equals(b, "[1]");
-    Value c = list_slice(incref(base), 0, 4);
+    Value c = slice(incref(base), 0, 4);
     expect_equals(c, "[1, 2, 3, 4]");
-    Value d = list_slice(incref(base), 4, 0);
+    Value d = slice(incref(base), 4, 0);
     expect_equals(d, "[]");
-    Value e = list_slice(empty_list(), 0, 0);
+    Value e = slice(empty_list(), 0, 0);
     expect_equals(e, "[]");
     decref(base, a, b, c, d);
 }
@@ -163,8 +163,8 @@ void test_slice()
 void test_reuse_slice_of_slice()
 {
     Value base = list_3(int_value(1), int_value(2), int_value(3));
-    Value a = list_slice(incref(base), 1, 2);
-    Value b = list_slice(a, 1, 1);
+    Value a = slice(incref(base), 1, 2);
+    Value b = slice(a, 1, 1);
     expect(a == b);
     expect_equals(b, "[3]");
     decref(base, b);
@@ -173,8 +173,8 @@ void test_reuse_slice_of_slice()
 void test_simplify_slice_on_slice()
 {
     Value base = list_3(int_value(1), int_value(2), int_value(3));
-    Value a = list_slice(incref(base), 1, 2);
-    Value b = list_slice(incref(a), 1, 1);
+    Value a = slice(incref(base), 1, 2);
+    Value b = slice(incref(a), 1, 1);
 
     expect_equals(a, "[2, 3]");
     expect_equals(b, "[3]");
@@ -182,6 +182,20 @@ void test_simplify_slice_on_slice()
     expect(b.array_slice_ptr->base == base);
 
     decref(base, a, b);
+}
+
+void test_first()
+{
+    expect_equals_and_take(first(empty_list()), "nil");
+    expect_equals_and_take(first(range(1, 2)), "1");
+    expect_equals_and_take(first(range(1, 4)), "1");
+}
+
+void test_rest()
+{
+    expect_equals_and_take(rest(list_0()), "nil");
+    expect_equals_and_take(rest(range(1, 2)), "[]");
+    expect_equals_and_take(rest(range(1, 4)), "[2, 3]");
 }
 
 void test_set_index()
@@ -206,4 +220,7 @@ void list_test()
     test_case(test_slice);
     test_case(test_reuse_slice_of_slice);
     test_case(test_simplify_slice_on_slice);
+    test_case(test_first);
+    test_case(test_rest);
+    test_case(test_set_index);
 }

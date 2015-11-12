@@ -80,4 +80,9 @@ bool array_iterator_valid(ArrayIterator* it);
 void array_iterator_advance(ArrayIterator* it);
 Value array_iterator_current(ArrayIterator* it);
 
+Value slice(Value list /*consumed*/, int start_index, int len);
+Value first(Value list /* consumed */);
+Value rest(Value list /* consumed */);
+Value range(int start, int fin);
+
 } // namespace ice

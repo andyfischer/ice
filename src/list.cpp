@@ -480,7 +480,7 @@ Value concat_2(Value left /*consumed*/, Value right /*consumed*/)
     return ptr_value(new_array_node(left, right));
 }
 
-Value list_slice(Value list, int start_index, int len)
+Value slice(Value list, int start_index, int len)
 {
     int list_length = length(list);
 
@@ -517,6 +517,34 @@ Value list_slice(Value list, int start_index, int len)
     // Future: Could try to use underlying list for ArrayNode
 
     return ptr_value(new_array_slice(list, start_index, len));
+}
+
+Value first(Value list /* consumed */)
+{
+    Value out = take_index(list, 0);
+    decref(list);
+    return out;
+}
+
+Value rest(Value list /* consumed */)
+{
+    int len = length(list);
+    if (len == 0)
+        return nil_value();
+    return slice(list, 1, len);
+}
+
+Value range(int start, int fin)
+{
+    if (fin <= start)
+        return empty_list();
+
+    int len = fin - start;
+
+    Array* out = new_array(len, len);
+    for (int i = 0; i < len; i++)
+        out->items[i] = int_value(i + start);
+    return ptr_value(out);
 }
 
 Value set_index(Value list, int index, Value el)

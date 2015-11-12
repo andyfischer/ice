@@ -18,7 +18,7 @@ Value eval_append(Value expr)
 
 Value eval_concat(Value expr)
 {
-    Value out = concat_n(list_slice(expr, 1, length(expr) - 1));
+    Value out = concat_n(slice(expr, 1, length(expr) - 1));
     decref(expr);
     return out;
 }
@@ -42,7 +42,7 @@ Value eval_if(Value expr)
 Value eval_list(Value expr)
 {
     // simple because 'expr' is already a list.
-    return list_slice(expr, 1, length(expr) - 1);
+    return slice(expr, 1, length(expr) - 1);
 }
 
 const char* symbols_valid_as_identifier = "!@#$%^&*-_=+.~<>:;?/|`";

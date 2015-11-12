@@ -159,7 +159,9 @@ Value prepend(Value list /*consumed*/, Value prefix /*consumed*/);
 Value append(Value list /*consumed*/, Value suffix /*consumed*/);
 Value concat_n(Value items /*consumed*/);
 Value concat_2(Value left /*consumed*/, Value right /*consumed*/);
-Value list_slice(Value list /* consumed */, int start_index, int length);
+Value slice(Value list /* consumed */, int start_index, int length);
+Value first(Value list /* consumed */);
+Value rest(Value list /* consumed */);
 
 // Table
 Value table_0();

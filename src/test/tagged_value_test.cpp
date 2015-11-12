@@ -94,8 +94,8 @@ void test_hashcode_primitives()
 
 void test_hashcode_lists()
 {
-    Value a = list_2(int_value(1), int_value(2));
-    Value b = list_slice(list_4(nil_value(), int_value(1), int_value(2), nil_value()), 1, 2);
+    Value a = range(1, 3);
+    Value b = slice(list_4(nil_value(), int_value(1), int_value(2), nil_value()), 1, 2);
     Value c = concat_2(list_1(int_value(1)), list_1(int_value(2)));
 
     expect(hashcode(a) == hashcode(b));

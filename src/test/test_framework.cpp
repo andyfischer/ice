@@ -80,6 +80,12 @@ void expect_equals_(Value value, const char* stringRep, int line, const char* fi
     decref(asstr);
 }
 
+void expect_equals_and_take_(ice::Value value, const char* stringRep, int line, const char* file)
+{
+    expect_equals_(value, stringRep, line, file);
+    decref(value);
+}
+
 void expect_equals_(ice::Value left, ice::Value right, int line, const char* file)
 {
     if (!equals(left, right)) {
