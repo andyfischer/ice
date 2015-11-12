@@ -157,8 +157,8 @@ Value set_index(Value list /*consumed*/, int index, Value el /*consumed*/);
 bool list_equals(Value left, Value right);
 Value prepend(Value list /*consumed*/, Value prefix /*consumed*/);
 Value append(Value list /*consumed*/, Value suffix /*consumed*/);
-Value concat(Value items /*consumed*/);
-Value cons(Value left /*consumed*/, Value right /*consumed*/);
+Value concat_n(Value items /*consumed*/);
+Value concat_2(Value left /*consumed*/, Value right /*consumed*/);
 Value list_slice(Value list /* consumed */, int start_index, int length);
 
 // Table

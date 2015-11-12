@@ -18,7 +18,7 @@ Value eval_append(Value expr)
 
 Value eval_concat(Value expr)
 {
-    Value out = concat(list_slice(expr, 1, length(expr) - 1));
+    Value out = concat_n(list_slice(expr, 1, length(expr) - 1));
     decref(expr);
     return out;
 }

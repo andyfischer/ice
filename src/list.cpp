@@ -400,7 +400,7 @@ Value prepend(Value list, Value prefix)
         return list;
     }
 
-    // Create a new list and cons cell
+    // Create a new list (for left hand side) and new node.
     Array* out = new_array(1, ARRAY_DEFAULT_CAPACITY_FOR_EXTEND);
     out->items[0] = prefix;
     return ptr_value(new_array_node(ptr_value(out), list));
@@ -440,13 +440,13 @@ Value append(Value list, Value suffix)
         }
     }
 
-    // Create a new list and cons cell
+    // Create a new list (for right hand side) and new node.
     Array* right = new_array(1, ARRAY_DEFAULT_CAPACITY_FOR_EXTEND);
     right->items[0] = suffix;
     return ptr_value(new_array_node(list, ptr_value(right)));
 }
 
-Value concat(Value items /*consumed*/)
+Value concat_n(Value items /*consumed*/)
 {
     if (!is_list(items)) {
         decref(items);
@@ -461,12 +461,12 @@ Value concat(Value items /*consumed*/)
     Value out = take_index(items, 0);
 
     for (int i=1; i < items_length; i++)
-        out = cons(out, take_index(items, i));
+        out = concat_2(out, take_index(items, i));
 
     return out;
 }
 
-Value cons(Value left /*consumed*/, Value right /*consumed*/)
+Value concat_2(Value left /*consumed*/, Value right /*consumed*/)
 {
     if (!is_list(right))
         return append(left, right);

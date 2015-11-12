@@ -85,13 +85,13 @@ void test_append_eval()
     decref(a);
 }
 
-void test_cons()
+void test_concat()
 {
     Value a = list_2(int_value(1), int_value(2));
     Value b = list_2(int_value(3), int_value(4));
 
-    Value x = cons(incref(a), incref(b));
-    Value y = cons(b, a);
+    Value x = concat_2(incref(a), incref(b));
+    Value y = concat_2(b, a);
     expect_equals(x, "[1, 2, 3, 4]");
     expect_equals(y, "[3, 4, 1, 2]");
     expect_equals(get_index(x, 0), "1");
@@ -101,27 +101,27 @@ void test_cons()
     decref(x, y);
 }
 
-void test_cons_empty_left()
+void test_concat_empty_left()
 {
-    Value x = cons(empty_list(), list_2(int_value(1), int_value(2)));
+    Value x = concat_2(empty_list(), list_2(int_value(1), int_value(2)));
     expect_equals(x, "[1, 2]");
     decref(x);
 }
 
-void test_cons_empty_right()
+void test_concat_empty_right()
 {
-    Value x = cons(list_2(int_value(1), int_value(2)), empty_list());
+    Value x = concat_2(list_2(int_value(1), int_value(2)), empty_list());
     expect_equals(x, "[1, 2]");
     decref(x);
 }
 
-void test_cons_nested()
+void test_concat_nested()
 {
-    Value a = cons(list_2(int_value(0), int_value(1)), list_1(int_value(2)));
-    Value b = cons(list_1(int_value(3)), list_3(int_value(4), int_value(5), int_value(6)));
-    Value c = cons(a, b);
-    Value d = cons(c, list_0());
-    Value e = cons(d, list_1(int_value(7)));
+    Value a = concat_2(list_2(int_value(0), int_value(1)), list_1(int_value(2)));
+    Value b = concat_2(list_1(int_value(3)), list_3(int_value(4), int_value(5), int_value(6)));
+    Value c = concat_2(a, b);
+    Value d = concat_2(c, list_0());
+    Value e = concat_2(d, list_1(int_value(7)));
 
     expect_equals(e, "[0, 1, 2, 3, 4, 5, 6, 7]");
     for (int i = 0; i < 7; i++)
@@ -130,14 +130,14 @@ void test_cons_nested()
     decref(e);
 }
 
-void test_cons_repeat()
+void test_concat_repeat()
 {
     Value a = list_3(int_value(1), int_value(2), int_value(3));
-    Value b = cons(incref(a), incref(a));
+    Value b = concat_2(incref(a), incref(a));
 
     expect_equals(b, "[1, 2, 3, 1, 2, 3]");
 
-    b = cons(a, b);
+    b = concat_2(a, b);
 
     expect_equals(b, "[1, 2, 3, 1, 2, 3, 1, 2, 3]");
 
@@ -198,11 +198,11 @@ void list_test()
     test_case(test_append_2);
     test_case(test_list_eval);
     test_case(test_append_eval);
-    test_case(test_cons);
-    test_case(test_cons_empty_left);
-    test_case(test_cons_empty_right);
-    test_case(test_cons_nested);
-    test_case(test_cons_repeat);
+    test_case(test_concat);
+    test_case(test_concat_empty_left);
+    test_case(test_concat_empty_right);
+    test_case(test_concat_nested);
+    test_case(test_concat_repeat);
     test_case(test_slice);
     test_case(test_reuse_slice_of_slice);
     test_case(test_simplify_slice_on_slice);
