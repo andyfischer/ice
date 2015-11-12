@@ -547,25 +547,88 @@ Value range(int start, int fin)
     return ptr_value(out);
 }
 
+Value list_guarantee_writeable_range(Value list /*consumed*/, int start, int fin)
+{
+    ice_assert(fin > start);
+    int list_length = length(list);
+
+    if (is_array(list)) {
+        if (object_is_writeable(list))
+            return list;
+    }
+
+    // TODO: efficient tricks for ArrayNode & ArraySlice
+    int new_len = fin - start;
+
+    // create a new section from start .. fin
+    Value out = ptr_value(new_array(new_len, new_len));
+
+    if (start > 0)
+        out = concat_2(slice(list, 0, start), out);
+
+    if (fin < list_length)
+        out = concat_2(out, slice(list, fin, list_length));
+
+    return out;
+}
+
+Value take_index(Value list, int index)
+{
+    if (index < 0 || index >= length(list)) {
+        decref(list);
+        return nil_value();
+    }
+
+    if (is_array(list) && object_is_writeable(list)) {
+        if (index >= list.array_ptr->length)
+            return nil_value();
+        Value *loc = &list.array_ptr->items[index];
+        Value out = *loc;
+        *loc = nil_value();
+        return out;
+    }
+
+    return incref(get_index(list, index));
+}
+
 Value set_index(Value list, int index, Value el)
 {
-    ice_assert(index >= 0);
+    if (!is_list(list)) {
+        decref(list, el);
+        return nil_value();
+    }
 
-    switch (list.tag) {
-    case TAG_POINTER:
-        switch (list.object_ptr->type) {
-        case TYPE_ARRAY: {
-            Array* array = list.array_ptr;
-            ice_assert(index < array->length);
-            if (array->refcount == 1)
-                array->items[index] = el;
-            incref(el);
-            break;
-        }
+    int list_length = length(list);
+
+    if (index < 0 || index >= list_length) {
+        decref(el);
+        return list;
+    }
+
+    if (is_array(list)) {
+        if (object_is_writeable(list)) {
+            decref(list.array_ptr->items[index]);
+            list.array_ptr->items[index] = el;
+            return list;
         }
     }
 
-    return nil_value();
+    // TODO: efficient tricks for ArrayNode & ArraySlice
+
+    // create a new section
+    Array* new_section = new_array(1, 1);
+    new_section->items[0] = el;
+
+    Value out = ptr_value(new_section);
+
+    if (index > 0)
+        out = concat_2(slice(list, 0, index), out);
+
+    if ((index+1) < list_length)
+        out = concat_2(out, slice(list, index+1, list_length));
+
+    return out;
+
 }
 
 } // namespace ice

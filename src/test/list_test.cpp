@@ -200,7 +200,11 @@ void test_rest()
 
 void test_set_index()
 {
-    // TODO
+    expect_equals_and_take(set_index(range(0, 5), 2, symbol("hi")), "[0, 1, :hi, 3, 4]");
+    expect_equals_and_take(set_index(range(0, 1), 0, symbol("hi")), "[:hi]");
+    expect_equals_and_take(set_index(range(0, 3), 0, symbol("hi")), "[:hi, 1, 2]");
+    expect_equals_and_take(set_index(range(0, 3), 2, symbol("hi")), "[0, 1, :hi]");
+    expect_equals_and_take(set_index(range(0, 3), 3, symbol("hi")), "[0, 1, 2]");
 }
 
 void list_test()

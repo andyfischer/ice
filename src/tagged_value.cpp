@@ -769,23 +769,6 @@ Value get_index(Value list, int index)
     return nil_value();
 }
 
-Value take_index(Value list, int index)
-{
-    if (index < 0)
-        return nil_value();
-
-    if (is_array(list) && object_is_writeable(list)) {
-        if (index >= list.array_ptr->length)
-            return nil_value();
-        Value *loc = &list.array_ptr->items[index];
-        Value out = *loc;
-        *loc = nil_value();
-        return out;
-    }
-
-    return incref(get_index(list, index));
-}
-
 void Value::dump()
 {
     ::dump(*this);
