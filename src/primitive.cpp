@@ -46,4 +46,12 @@ f64 atof(Value blob)
     return atoi(blob);
 }
 
+Value inc(Value i)
+{
+    if (!is_int(i))
+        return nil_value();
+
+    return int_value(i.i + 1);
+}
+
 } // namespace ice

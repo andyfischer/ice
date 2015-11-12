@@ -7,4 +7,6 @@ namespace ice {
 i64 atoi(Value blob);
 f64 atof(Value blob);
 
+Value inc(Value i);
+
 } // namespace ice

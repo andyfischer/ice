@@ -9,11 +9,30 @@
 
 namespace ice {
 
+Value args_1(Value expr)
+{
+    Value arg = eval(take_index(expr, 1));
+    decref(expr);
+    return arg;
+}
+
+void args_2(Value expr, Value* arg1, Value* arg2)
+{
+    *arg1 = eval(take_index(expr, 1));
+    *arg2 = eval(take_index(expr, 2));
+    decref(expr);
+}
+
+void args_n(Value expr)
+{
+
+}
+
 Value eval_append(Value expr)
 {
-    Value out = append(eval(take_index(expr, 1)), eval(take_index(expr, 2)));
-    decref(expr);
-    return out;
+    Value l, r;
+    args_2(expr, &l, &r);
+    return append(l, r);
 }
 
 Value eval_concat(Value expr)
@@ -43,6 +62,11 @@ Value eval_list(Value expr)
 {
     // simple because 'expr' is already a list.
     return slice(expr, 1, length(expr) - 1);
+}
+
+Value eval_first(Value expr)
+{
+    return first(args_1(expr));
 }
 
 const char* symbols_valid_as_identifier = "!@#$%^&*-_=+.~<>:;?/|`";

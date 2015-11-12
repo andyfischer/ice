@@ -141,6 +141,9 @@ Value empty_list();
 Value empty_blob();
 Value empty_table();
 
+// Integer
+Value inc(Value i);
+
 // List
 Value list_0();
 Value list_1(Value el1 /*consumed*/);
@@ -162,6 +165,10 @@ Value concat_2(Value left /*consumed*/, Value right /*consumed*/);
 Value slice(Value list /* consumed */, int start_index, int length);
 Value first(Value list /* consumed */);
 Value rest(Value list /* consumed */);
+Value range(int start, int fin);
+
+typedef Value(*map_f)(Value in /*consumed*/);
+Value map(Value list /*consumed*/, map_f func);
 
 // Table
 Value table_0();

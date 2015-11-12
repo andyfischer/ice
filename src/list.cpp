@@ -534,6 +534,21 @@ Value rest(Value list /* consumed */)
     return slice(list, 1, len);
 }
 
+Value map(Value list /*consumed*/, map_f func)
+{
+    int list_length = length(list);
+
+    if (list_length == 0)
+        return empty_list();
+
+    Array* result = new_array(list_length, list_length);
+
+    for (int i=0; i < list_length; i++)
+        result->items[i] = func(take_index(list, i));
+
+    return ptr_value(result);
+}
+
 Value range(int start, int fin)
 {
     if (fin <= start)
@@ -575,7 +590,6 @@ Value list_guarantee_writeable_range(Value list /*consumed*/, int start, int fin
 Value take_index(Value list, int index)
 {
     if (index < 0 || index >= length(list)) {
-        decref(list);
         return nil_value();
     }
 

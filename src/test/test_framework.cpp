@@ -30,6 +30,7 @@ void all_tests()
 {
     test_suite(blob_test);
     test_suite(list_test);
+    test_suite(list_comprehension_test);
     test_suite(lisp_parser_test);
     test_suite(lisp_eval_test);
     test_suite(tagged_value_test);

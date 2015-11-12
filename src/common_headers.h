@@ -35,8 +35,6 @@
 
 namespace ice {
 
-#define get_pointer(v) ((v)->ptr)
-
 void* ice_malloc(u32 newSize);
 void* ice_realloc(void* data, u32 newSize);
 void internal_error(const char* msg);
