@@ -23,9 +23,10 @@ void args_2(Value expr, Value* arg1, Value* arg2)
     decref(expr);
 }
 
-void args_n(Value expr)
+Value args_n(Value expr)
 {
-
+    Value s = slice(expr, 1, length(expr));
+    return map(s, eval);
 }
 
 Value eval_append(Value expr)
@@ -37,9 +38,7 @@ Value eval_append(Value expr)
 
 Value eval_concat(Value expr)
 {
-    Value out = concat_n(slice(expr, 1, length(expr) - 1));
-    decref(expr);
-    return out;
+    return concat_n(args_n(expr));
 }
 
 Value eval_if(Value expr)
@@ -60,8 +59,7 @@ Value eval_if(Value expr)
 
 Value eval_list(Value expr)
 {
-    // simple because 'expr' is already a list.
-    return slice(expr, 1, length(expr) - 1);
+    return args_n(expr);
 }
 
 Value eval_first(Value expr)

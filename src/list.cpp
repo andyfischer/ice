@@ -546,6 +546,8 @@ Value map(Value list /*consumed*/, map_f func)
     for (int i=0; i < list_length; i++)
         result->items[i] = func(take_index(list, i));
 
+    decref(list);
+
     return ptr_value(result);
 }
 
