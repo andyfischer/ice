@@ -2,43 +2,100 @@
 
 #include "common_headers.h"
 
-#include "blob.h"
+#include "list.h"
 #include "lisp_eval.h"
 #include "primitive.h"
 #include "tagged_value.h"
 
 namespace ice {
 
-Value args_1(Value expr)
+Value args_1(Value env, Value expr)
 {
-    Value arg = eval(take_index(expr, 1));
+    Value arg = eval(env, take_index(expr, 1));
     decref(expr);
     return arg;
 }
 
-void args_2(Value expr, Value* arg1, Value* arg2)
+void args_2(Value env, Value expr, Value* arg1, Value* arg2)
 {
-    *arg1 = eval(take_index(expr, 1));
-    *arg2 = eval(take_index(expr, 2));
+    *arg1 = eval(env, take_index(expr, 1));
+    *arg2 = eval(env, take_index(expr, 2));
     decref(expr);
 }
 
-Value args_n(Value expr)
+Value args_n(Value env, Value expr)
 {
     Value s = slice(expr, 1, length(expr));
-    return map(s, eval);
+    return map_1(s, eval, env);
 }
 
-Value eval_append(Value expr)
+Value eval_let(Value env, Value expr)
+{
+    env = incref(env);
+
+    Value bindings = take_index(expr, 1);
+
+    // Bindings
+    ArrayIterator it(bindings);
+
+    while (it.valid()) {
+        Value name = incref(it.current());
+
+        it.advance();
+
+        Value val = nil_value();
+        if (it.valid())
+            val = eval(env, incref(it.current()));
+
+        env = insert(env, name, val);
+        it.advance();
+    }
+
+    decref(bindings);
+
+    // Exprs
+    Value out = nil_value();
+
+    for (int i=2; i < length(expr); i++) {
+        decref(out);
+        out = eval(env, take_index(expr, i));
+    }
+
+    decref(env, expr);
+
+    return out;
+}
+
+Value eval_append(Value env, Value expr)
 {
     Value l, r;
-    args_2(expr, &l, &r);
+    args_2(env, expr, &l, &r);
     return append(l, r);
 }
 
-Value eval_if(Value expr)
+Value eval_concat(Value env, Value expr) { return concat_n(args_n(env, expr)); }
+Value eval_list(Value env, Value expr) { return args_n(env, expr); }
+
+Value eval_print(Value env, Value expr)
 {
-    Value cond = eval(take_index(expr, 1));
+    Value a = args_1(env, expr);
+    print(a);
+    return a;
+}
+
+Value eval_println(Value env, Value expr)
+{
+    Value a = args_1(env, expr);
+    println(a);
+    return a;
+}
+
+Value eval_first(Value env, Value expr) { return first(args_1(env, expr)); }
+Value eval_rest(Value env, Value expr) { return rest(args_1(env, expr)); }
+
+Value eval_if(Value env, Value expr)
+{
+    Value cond = eval(env, take_index(expr, 1));
 
     Value result;
     if (cond == false_value() || cond == nil_value())
@@ -52,9 +109,9 @@ Value eval_if(Value expr)
     return result;
 }
 
-Value eval_equals(Value expr)
+Value eval_equals(Value env, Value expr)
 {
-    Value args = args_n(expr);
+    Value args = args_n(env, expr);
     if (length(args) < 2) {
         decref(args);
         return true_value();
@@ -75,152 +132,35 @@ Value eval_equals(Value expr)
     return bool_value(result);
 }
 
-const char* symbols_valid_as_identifier = "!@#$%^&*-_=+.~<>:;?/|`";
-
-bool is_letter(u8 c)
+func_2 find_builtin_func(Value name)
 {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+    if (equals_symbol(name, "append"))
+        return eval_append;
+    else if (equals_symbol(name, "concat"))
+        return eval_concat;
+    else if (equals_symbol(name, "if"))
+        return eval_if;
+    else if (equals_symbol(name, "let"))
+        return eval_let;
+    else if (equals_symbol(name, "list"))
+        return eval_list;
+    else if (equals_symbol(name, "first"))
+        return eval_first;
+    else if (equals_symbol(name, "rest"))
+        return eval_rest;
+    else if (equals_symbol(name, "print"))
+        return eval_print;
+    else if (equals_symbol(name, "println"))
+        return eval_println;
+    else if (equals_symbol(name, "="))
+        return eval_equals;
+    else if (equals_symbol(name, "eq?"))
+        return eval_equals;
+    
+    return NULL;
 }
 
-bool is_number(u8 c)
-{
-    return (c >= '0' && c <= '9');
-}
-
-bool is_space(u8 c) { return c == ' '; }
-
-bool is_valid_inside_symbol(u8 c)
-{
-    if (is_letter(c) || is_number(c))
-        return true;
-
-    for (int i=0;; i++) {
-        if (symbols_valid_as_identifier[i] == 0)
-            break;
-        if (symbols_valid_as_identifier[i] == c)
-            return true;
-    }
-
-    return false;
-}
-
-Value consume_symbol(ByteIterator* b)
-{
-    Value match = empty_blob();
-
-    bool integerMatch = true;
-    int dotCount = 0;
-    bool floatMatch = true;
-
-    while (1) {
-        u8 c = byte_iterator_current(b);
-
-        if (!is_valid_inside_symbol(c))
-            break;
-
-        match = blob_append_byte(match, c);
-        byte_iterator_advance(b);
-
-        if (!is_number(c))
-            integerMatch = false;
-        if (!is_number(c) && !(c == '.'))
-            floatMatch = false;
-        if (c == '.')
-            dotCount++;
-    }
-
-    if (integerMatch) {
-        u64 result = atoi(match);
-        decref(match);
-        return int_value(result);
-    }
-
-    if (floatMatch && dotCount == 1) {
-        f64 result = atof(match);
-        decref(match);
-        return float_value(result);
-    }
-
-    return to_symbol(match);
-}
-
-Value parse_list(ByteIterator* b)
-{
-    Value out = empty_list();
-
-    while (byte_iterator_valid(b)) {
-
-        u8 c = byte_iterator_current(b);
-
-        if (c == ')')
-            break;
-
-        if (c == ' ') {
-            byte_iterator_advance(b);
-            continue;
-        }
-
-        if (c == '(') {
-            byte_iterator_advance(b);
-            Value inner_list = parse_list(b);
-            out = append(out, inner_list);
-
-            if (byte_iterator_valid(b) && byte_iterator_current(b) == ')')
-                byte_iterator_advance(b);
-
-            continue;
-        }
-
-        if (is_valid_inside_symbol(c)) {
-            Value str = consume_symbol(b);
-            out = append(out, str);
-            continue;
-        }
-
-        // Error
-        Value msg = blob_s("Unexpected character: ");
-        msg = blob_append_byte(msg, c);
-        out = append(out, table_1(symbol("error"), msg));
-        byte_iterator_advance(b);
-    }
-
-    return out;
-}
-
-Value lisp_parse_multi(Value text /*consumed*/)
-{
-    if (!is_blob(text)) {
-        decref(text);
-        return table_1(symbol("error"), blob_s("Input to parse() must be a blob"));
-    }
-
-    ByteIterator b;
-    byte_iterator_start(&b, text);
-
-    Value out = parse_list(&b);
-
-    decref(text);
-    return out;
-}
-
-Value parse(Value text /*consumed*/)
-{
-    Value parsed = lisp_parse_multi(text);
-    if (length(parsed) == 0)
-        return empty_list();
-
-    Value first = take_index(parsed, 0);
-    decref(parsed);
-    return first;
-}
-
-Value parse_s(const char* str)
-{
-    return parse(blob_s(str));
-}
-
-
-Value eval(Value expr /*consumed*/)
+Value eval(Value env /*consumed*/, Value expr /*consumed*/)
 {
     if (equals_symbol(expr, "true")) {
         decref(expr);
@@ -232,38 +172,34 @@ Value eval(Value expr /*consumed*/)
         return false_value();
     }
 
+    if (is_symbol(expr)) {
+        Value val = incref(get_key(env, expr));
+        decref(expr);
+        return val;
+    }
+
     if (!is_list(expr))
         return expr;
 
-    Value function = eval(take_index(expr, 0));
+    Value arg0 = take_index(expr, 0);
+    if (is_list(arg0))
+        arg0 = eval(env, arg0);
 
-    Value out;
-    if (equals_symbol(function, "append"))
-        out = eval_append(expr);
-    else if (equals_symbol(function, "concat"))
-        out = concat_n(args_n(expr));
-    else if (equals_symbol(function, "if"))
-        out = eval_if(expr);
-    else if (equals_symbol(function, "list"))
-        out = args_n(expr);
-    else if (equals_symbol(function, "first"))
-        out = first(args_1(expr));
-    else if (equals_symbol(function, "rest"))
-        out = rest(args_1(expr));
-    else if (equals_symbol(function, "print")) {
-        print(args_1(expr));
-        out = nil_value();
-    } else if (equals_symbol(function, "println")) {
-        println(args_1(expr));
-        out = nil_value();
+    if (is_symbol(arg0)) {
+
+        func_2 builtin = find_builtin_func(arg0);
+        if (builtin != NULL) {
+            decref(arg0);
+            return builtin(env, expr);
+        }
     }
-    else if (equals_symbol(function, "="))
-        out = eval_equals(expr);
-    else
-        out = nil_value();
 
-    decref(function);
-    return out;
+    return nil_value();
+}
+
+Value eval(Value expr /*consumed*/)
+{
+    return eval(empty_table(), expr);
 }
 
 } // namespace ice

@@ -86,6 +86,7 @@ Value slice(Value list /*consumed*/, int start_index, int len);
 Value first(Value list /* consumed */);
 Value rest(Value list /* consumed */);
 Value range(int start, int fin);
-Value map(Value list /*consumed*/, map_f func);
+Value map(Value list /*consumed*/, func_1 func /* arg1 consumed */);
+Value map_1(Value list /*consumed*/, func_2 func /* arg2 consumed */, Value arg1);
 
 } // namespace ice

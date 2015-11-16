@@ -160,7 +160,7 @@ Value /*borrowed*/ find(Hashtable* ht, Value key)
     }
 }
 
-Value set_key(Value table, Value key, Value val)
+Value insert(Value table, Value key, Value val)
 {
     if (is_empty_table(table)) {
         Hashtable* ht = new_hashtable(NEW_TABLE_DEFAULT_CAPACITY);
@@ -213,6 +213,11 @@ Value set_key(Value table, Value key, Value val)
         decref(table);
         return ptr_value(bigger_ht);
     }
+}
+
+Value set_key(Value table, Value key, Value val)
+{
+    return insert(table, key, val);
 }
 
 Value table_0()

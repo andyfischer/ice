@@ -67,6 +67,7 @@ OBJECTS := \
 	$(OBJDIR)/blob.o \
 	$(OBJDIR)/common.o \
 	$(OBJDIR)/lisp.o \
+	$(OBJDIR)/lisp_parser.o \
 	$(OBJDIR)/list.o \
 	$(OBJDIR)/primitive.o \
 	$(OBJDIR)/table.o \
@@ -138,6 +139,9 @@ $(OBJDIR)/common.o: common.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/lisp.o: lisp.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+$(OBJDIR)/lisp_parser.o: lisp_parser.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/list.o: list.cpp

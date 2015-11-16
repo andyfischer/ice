@@ -72,9 +72,8 @@ struct Value {
     };
 
     void dump();
-    bool operator==(Value const& rhs) {
-        return this->raw == rhs.raw;
-    }
+    bool operator==(Value const& rhs) { return this->raw == rhs.raw; }
+    bool operator!=(Value const& rhs) { return this->raw != rhs.raw; }
 };
 
 void init_value(Value* value);
@@ -168,8 +167,10 @@ Value first(Value list /* consumed */);
 Value rest(Value list /* consumed */);
 Value range(int start, int fin);
 
-typedef Value(*map_f)(Value in /*consumed*/);
-Value map(Value list /*consumed*/, map_f func);
+typedef Value(*func_1)(Value arg1);
+typedef Value(*func_2)(Value arg1, Value arg2);
+Value map(Value list /*consumed*/, func_1 func /* arg1 consumed */);
+Value map_1(Value list /*consumed*/, func_2 func /* arg2 consumed */, Value arg1);
 
 // Table
 Value table_0();
@@ -182,6 +183,7 @@ Value table_3(Value k1 /*consumed*/, Value v1 /*consumed*/,
 
 Value get_key(Value table, Value key);
 Value set_key(Value table /*consumed*/, Value key /*consumed*/, Value val /*consumed*/);
+Value insert(Value table /*consumed*/, Value key /*consumed*/, Value val /*consumed*/);
 Value table_keys(Value table);
 Value table_values(Value table);
 
@@ -208,6 +210,7 @@ Value parse(Value blob /*consumed*/);
 Value parse_s(const char* str);
 Value parse_multi(Value text /*consumed*/);
 Value eval(Value expr /*consumed*/);
+Value eval(Value env /*consumed*/, Value expr /*consumed*/);
 
 // Parse one s-expression.
 Value parse(Value text /* consumed */);
