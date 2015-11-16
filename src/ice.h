@@ -131,6 +131,7 @@ bool is_hashtable(Value value);
 // Value initialization
 Value int_value(int i);
 Value float_value(f32 f);
+Value bool_value(bool b);
 Value ptr_value(void*);
 Value nullable_ptr_value(void*);
 Value ex_value(u8 extag);

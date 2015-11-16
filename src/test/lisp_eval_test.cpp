@@ -23,8 +23,19 @@ void lisp_test_if()
 
 void lisp_test_if_parsed()
 {
-    expect_equals(eval(parse(blob_s("(if true 1 2)"))), "1");
-    expect_equals(eval(parse(blob_s("(if false 1 2)"))), "2");
+    expect_equals(eval(parse_s("(if true 1 2)")), "1");
+    expect_equals(eval(parse_s("(if false 1 2)")), "2");
+}
+
+void lisp_test_equals()
+{
+    expect_equals(eval(parse_s("(=)")), "true");
+    expect_equals(eval(parse_s("(= 1)")), "true");
+    expect_equals(eval(parse_s("(= 1 2)")), "false");
+    expect_equals(eval(parse_s("(= 1 1)")), "true");
+    expect_equals(eval(parse_s("(= 1 1 1)")), "true");
+    expect_equals(eval(parse_s("(= 1 1 2)")), "false");
+    expect_equals(eval(parse_s("(= = = =)")), "true");
 }
 
 void lisp_eval_test()
@@ -33,4 +44,5 @@ void lisp_eval_test()
     test_case(lisp_test_empty_list);
     test_case(lisp_test_if);
     test_case(lisp_test_if_parsed);
+    test_case(lisp_test_equals);
 }

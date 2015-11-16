@@ -36,11 +36,6 @@ Value eval_append(Value expr)
     return append(l, r);
 }
 
-Value eval_concat(Value expr)
-{
-    return concat_n(args_n(expr));
-}
-
 Value eval_if(Value expr)
 {
     Value cond = eval(take_index(expr, 1));
@@ -57,14 +52,27 @@ Value eval_if(Value expr)
     return result;
 }
 
-Value eval_list(Value expr)
+Value eval_equals(Value expr)
 {
-    return args_n(expr);
-}
+    Value args = args_n(expr);
+    if (length(args) < 2) {
+        decref(args);
+        return true_value();
+    }
 
-Value eval_first(Value expr)
-{
-    return first(args_1(expr));
+    Value first = take_index(args, 0);
+    bool result = true;
+    for (int i=1; i < length(args); i++) {
+        Value x = take_index(args, i);
+        result = equals(first, x);
+        decref(x);
+
+        if (!result)
+            break;
+    }
+
+    decref(first, args);
+    return bool_value(result);
 }
 
 const char* symbols_valid_as_identifier = "!@#$%^&*-_=+.~<>:;?/|`";
@@ -211,6 +219,7 @@ Value parse_s(const char* str)
     return parse(blob_s(str));
 }
 
+
 Value eval(Value expr /*consumed*/)
 {
     if (equals_symbol(expr, "true")) {
@@ -226,23 +235,32 @@ Value eval(Value expr /*consumed*/)
     if (!is_list(expr))
         return expr;
 
-    u32 len = length(expr);
-
     Value function = eval(take_index(expr, 0));
-    Value out;
 
+    Value out;
     if (equals_symbol(function, "append"))
         out = eval_append(expr);
     else if (equals_symbol(function, "concat"))
-        out = eval_concat(expr);
+        out = concat_n(args_n(expr));
     else if (equals_symbol(function, "if"))
         out = eval_if(expr);
     else if (equals_symbol(function, "list"))
-        out = eval_list(expr);
-    else {
-        decref(expr);
-        return nil_value();
+        out = args_n(expr);
+    else if (equals_symbol(function, "first"))
+        out = first(args_1(expr));
+    else if (equals_symbol(function, "rest"))
+        out = rest(args_1(expr));
+    else if (equals_symbol(function, "print")) {
+        print(args_1(expr));
+        out = nil_value();
+    } else if (equals_symbol(function, "println")) {
+        println(args_1(expr));
+        out = nil_value();
     }
+    else if (equals_symbol(function, "="))
+        out = eval_equals(expr);
+    else
+        out = nil_value();
 
     decref(function);
     return out;

@@ -696,6 +696,14 @@ Value float_value(f32 f)
     return v;
 }
 
+Value bool_value(bool b)
+{
+    if (b)
+        return true_value();
+    else
+        return false_value();
+}
+
 Value ptr_value(void* ptr)
 {
     ice_assert(ptr != NULL);
