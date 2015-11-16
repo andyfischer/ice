@@ -33,6 +33,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "perf.h"
+
 namespace ice {
 
 void* ice_malloc(u32 newSize);

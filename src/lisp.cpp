@@ -136,6 +136,10 @@ func_2 find_builtin_func(Value name)
 {
     if (equals_symbol(name, "append"))
         return eval_append;
+    else if (equals_symbol(name, "car"))
+        return eval_first;
+    else if (equals_symbol(name, "cdr"))
+        return eval_rest;
     else if (equals_symbol(name, "concat"))
         return eval_concat;
     else if (equals_symbol(name, "if"))
@@ -174,8 +178,10 @@ Value eval(Value env /*consumed*/, Value expr /*consumed*/)
 
     if (is_symbol(expr)) {
         Value val = incref(get_key(env, expr));
-        decref(expr);
-        return val;
+        if (val != nil_value()) {
+            decref(expr);
+            return val;
+        }
     }
 
     if (!is_list(expr))
@@ -186,7 +192,6 @@ Value eval(Value env /*consumed*/, Value expr /*consumed*/)
         arg0 = eval(env, arg0);
 
     if (is_symbol(arg0)) {
-
         func_2 builtin = find_builtin_func(arg0);
         if (builtin != NULL) {
             decref(arg0);
@@ -194,7 +199,8 @@ Value eval(Value env /*consumed*/, Value expr /*consumed*/)
         }
     }
 
-    return nil_value();
+    expr = set_index(expr, 0, arg0);
+    return expr;
 }
 
 Value eval(Value expr /*consumed*/)
