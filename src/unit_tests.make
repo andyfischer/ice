@@ -65,9 +65,9 @@ endif
 
 OBJECTS := \
 	$(OBJDIR)/blob_test.o \
+	$(OBJDIR)/comprehension_test.o \
 	$(OBJDIR)/lisp_eval_test.o \
 	$(OBJDIR)/lisp_parser_test.o \
-	$(OBJDIR)/list_comprehension_test.o \
 	$(OBJDIR)/list_test.o \
 	$(OBJDIR)/primitives_test.o \
 	$(OBJDIR)/symbol_test.o \
@@ -137,13 +137,13 @@ endif
 $(OBJDIR)/blob_test.o: test/blob_test.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+$(OBJDIR)/comprehension_test.o: test/comprehension_test.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/lisp_eval_test.o: test/lisp_eval_test.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/lisp_parser_test.o: test/lisp_parser_test.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/list_comprehension_test.o: test/list_comprehension_test.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/list_test.o: test/list_test.cpp

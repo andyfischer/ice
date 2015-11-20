@@ -66,9 +66,11 @@ endif
 OBJECTS := \
 	$(OBJDIR)/blob.o \
 	$(OBJDIR)/common.o \
+	$(OBJDIR)/comprehension.o \
 	$(OBJDIR)/lisp.o \
 	$(OBJDIR)/lisp_parser.o \
 	$(OBJDIR)/list.o \
+	$(OBJDIR)/perf.o \
 	$(OBJDIR)/primitive.o \
 	$(OBJDIR)/table.o \
 	$(OBJDIR)/tagged_value.o \
@@ -138,6 +140,9 @@ $(OBJDIR)/blob.o: blob.cpp
 $(OBJDIR)/common.o: common.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+$(OBJDIR)/comprehension.o: comprehension.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/lisp.o: lisp.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
@@ -145,6 +150,9 @@ $(OBJDIR)/lisp_parser.o: lisp_parser.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/list.o: list.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+$(OBJDIR)/perf.o: perf.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/primitive.o: primitive.cpp

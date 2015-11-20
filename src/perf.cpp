@@ -2,7 +2,11 @@
 
 #include "common_headers.h"
 
+#include "perf.h"
+
 namespace ice {
+
+#if ENABLE_STATS
 
 struct StatRecord {
     u32 count[num_stats];
@@ -11,7 +15,6 @@ struct StatRecord {
 
 StatRecord* g_statRecord = NULL;
 
-#if ENABLE_STATS
 
 void start_recording_stats()
 {
@@ -33,6 +36,10 @@ void perf_inc(StatEnum stat)
 
     g_statRecord->count[stat]++;
 }
+
+#else
+
+void perf_empty_file() {}
 
 #endif
 
