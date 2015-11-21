@@ -13,8 +13,8 @@ void internal_error(const char* msg)
 
 void* ice_malloc(u32 size)
 {
-    perf_inc(stat_alloc);
-    perf_inc(stat_malloc);
+    stat_inc(stat_alloc);
+    stat_inc(stat_malloc);
 
     void* data = malloc(size);
     if (data == NULL)
@@ -24,8 +24,8 @@ void* ice_malloc(u32 size)
 
 void* ice_realloc(void* data, u32 newSize)
 {
-    perf_inc(stat_alloc);
-    perf_inc(stat_realloc);
+    stat_inc(stat_alloc);
+    stat_inc(stat_realloc);
 
     void* newData = realloc(data, newSize);
     if (newData == NULL && newSize != 0)

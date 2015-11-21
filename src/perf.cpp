@@ -6,8 +6,6 @@
 
 namespace ice {
 
-#if ENABLE_STATS
-
 struct StatRecord {
     u32 count[num_stats];
     StatRecord* prev;
@@ -15,32 +13,25 @@ struct StatRecord {
 
 StatRecord* g_statRecord = NULL;
 
-
 void start_recording_stats()
 {
     StatRecord* prev = g_statRecord;
-    g_statRecord = calloc(sizeof(*g_statRecord));
+    g_statRecord = (StatRecord*) calloc(0, sizeof(*g_statRecord));
 }
 
 void stop_recording_stats()
 {
     StatRecord* prev = g_statRecord->prev;
     free(g_statRecord);
-    g_statRecord = pref;
+    g_statRecord = prev;
 }
 
-void perf_inc(StatEnum stat)
+void stat_inc_(StatEnum stat)
 {
     if (g_statRecord == NULL)
         return;
 
     g_statRecord->count[stat]++;
 }
-
-#else
-
-void perf_empty_file() {}
-
-#endif
 
 } // namespace ice

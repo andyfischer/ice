@@ -46,6 +46,12 @@ void lisp_test_let()
     expect_equals(eval(parse_s("(let (a 1 b a) b)")), "1");
 }
 
+void lisp_test_square_brackets()
+{
+    expect_equals_and_take(eval(parse_s("[]")), "[]");
+    expect_equals_and_take(eval(parse_s("[1 2 3]")), "[1, 2, 3]");
+}
+
 void lisp_eval_test()
 {
     test_case(lisp_test_atom);
@@ -54,4 +60,5 @@ void lisp_eval_test()
     test_case(lisp_test_if_parsed);
     test_case(lisp_test_equals);
     test_case(lisp_test_let);
+    test_case(lisp_test_square_brackets);
 }

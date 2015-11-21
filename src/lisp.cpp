@@ -9,21 +9,29 @@
 
 namespace ice {
 
-Value args_1(Value env, Value expr)
+Value args_1(Value env, Value expr /*consumed*/)
 {
     Value arg = eval(env, take_index(expr, 1));
     decref(expr);
     return arg;
 }
 
-void args_2(Value env, Value expr, Value* arg1, Value* arg2)
+void args_2(Value env, Value expr /*consumed*/, Value* arg1, Value* arg2)
 {
     *arg1 = eval(env, take_index(expr, 1));
     *arg2 = eval(env, take_index(expr, 2));
     decref(expr);
 }
 
-Value args_n(Value env, Value expr)
+void args_3(Value env, Value expr /*consumed*/, Value* arg1, Value* arg2, Value* arg3)
+{
+    *arg1 = eval(env, take_index(expr, 1));
+    *arg2 = eval(env, take_index(expr, 2));
+    *arg3 = eval(env, take_index(expr, 3));
+    decref(expr);
+}
+
+Value args_n(Value env, Value expr /*consumed*/)
 {
     Value s = slice(expr, 1, length(expr));
     return map_1(s, eval, env);
@@ -132,6 +140,34 @@ Value eval_equals(Value env, Value expr)
     return bool_value(result);
 }
 
+Value eval_get_index(Value env, Value expr)
+{
+    Value list, index;
+    args_2(env, expr, &list, &index);
+
+    if (!is_int(index)) {
+        decref(list, index);
+        return list;
+    }
+
+    Value out = incref(get_index(list, index.i));
+    decref(list);
+    return out;
+}
+
+Value eval_set_index(Value env, Value expr)
+{
+    Value list, index, item;
+    args_3(env, expr, &list, &index, &item);
+
+    if (!is_int(index)) {
+        decref(index, item);
+        return list;
+    }
+
+    return set_index(list, index.i, item);
+}
+
 func_2 find_builtin_func(Value name)
 {
     if (equals_symbol(name, "append"))
@@ -160,6 +196,10 @@ func_2 find_builtin_func(Value name)
         return eval_equals;
     else if (equals_symbol(name, "eq?"))
         return eval_equals;
+    else if (equals_symbol(name, "get-index"))
+        return eval_get_index;
+    else if (equals_symbol(name, "set-index"))
+        return eval_set_index;
     
     return NULL;
 }

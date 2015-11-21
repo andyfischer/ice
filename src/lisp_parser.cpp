@@ -76,7 +76,7 @@ Value consume_symbol(ByteIterator* b)
     return to_symbol(match);
 }
 
-Value parse_list(ByteIterator* b)
+Value parse_sexpr_items(ByteIterator* b)
 {
     Value out = empty_list();
 
@@ -84,7 +84,8 @@ Value parse_list(ByteIterator* b)
 
         u8 c = byte_iterator_current(b);
 
-        if (c == ')')
+        if (c == ')' || c == ']')
+            // stop and don't consume
             break;
 
         if (c == ' ') {
@@ -94,8 +95,20 @@ Value parse_list(ByteIterator* b)
 
         if (c == '(') {
             byte_iterator_advance(b);
-            Value inner_list = parse_list(b);
-            out = append(out, inner_list);
+            Value sexpr = parse_sexpr_items(b);
+            out = append(out, sexpr);
+
+            if (byte_iterator_valid(b) && byte_iterator_current(b) == ')')
+                byte_iterator_advance(b);
+
+            continue;
+        }
+
+        if (c == '[') {
+            byte_iterator_advance(b);
+            Value sexpr = parse_sexpr_items(b);
+            sexpr = prepend(sexpr, symbol("list"));
+            out = append(out, sexpr);
 
             if (byte_iterator_valid(b) && byte_iterator_current(b) == ')')
                 byte_iterator_advance(b);
@@ -129,7 +142,7 @@ Value lisp_parse_multi(Value text /*consumed*/)
     ByteIterator b;
     byte_iterator_start(&b, text);
 
-    Value out = parse_list(&b);
+    Value out = parse_sexpr_items(&b);
 
     decref(text);
     return out;

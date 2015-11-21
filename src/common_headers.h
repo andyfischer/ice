@@ -49,28 +49,17 @@ void internal_error(const char* msg);
 // intended to be called in places that significantly harm performance.
 #ifdef DEBUG
 
-#ifdef CIRCA_TEST_BUILD
-
-// Test build
-#define ice_assert(x) ice::ice_assert_((x), #x, __LINE__, __FILE__)
-#define ice_test_assert(x) ice_assert(x)
-#define stat_increment(x)
-
-#else
-
 // Debug build
 #define ice_assert(x) ice::ice_assert_((x), #x, __LINE__, __FILE__)
 #define ice_test_assert(x)
-#define stat_increment(x)
-
-#endif
+#define stat_inc(x) stat_inc_(x)
 
 #else
 
 // Release build
 #define ice_assert(x)
 #define ice_test_assert(x)
-#define stat_increment(x)
+#define stat_inc(x)
 
 #endif
 

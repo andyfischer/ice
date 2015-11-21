@@ -4,8 +4,6 @@
 
 namespace ice {
 
-#if ENABLE_STATS
-
 enum StatEnum {
     stat_alloc = 0,
     stat_malloc,
@@ -14,12 +12,6 @@ enum StatEnum {
     num_stats
 };
 
-void perf_inc(StatEnum stat);
-
-#else
-
-#define perf_inc(x) ;
-
-#endif
+void stat_inc_(StatEnum stat);
 
 } // namespace ice
