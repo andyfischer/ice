@@ -45,7 +45,6 @@ Value hashtable_value_by_index(Hashtable* ht, int index);
 bool hashtable_equals(Value left, Value right);
 
 Value get_key_by_index(Value table, int index);
-Value get_value_by_index(Value table, int index);
 Value set_value_by_index(Value table /*consumed*/, int index);
 Value delete_key(Value table /*consumed*/, Value key);
 

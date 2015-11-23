@@ -295,21 +295,6 @@ Value get_key_by_index(Value table, int index)
     return nil_value();
 }
 
-Value get_value_by_index(Value table, int index)
-{
-    if (is_empty_table(table))
-        return nil_value();
-
-    if (is_hashtable(table)) {
-        Hashtable* ht = table.hashtable_ptr;
-        if (index < 0 || index >= ht->length)
-            return nil_value();
-
-        return ht->getPair(index)->value;
-    }
-    return nil_value();
-}
-
 Value set_value_by_index(Value table /*consumed*/, int index, Value val /*consumed*/)
 {
     if (is_empty_table(table))

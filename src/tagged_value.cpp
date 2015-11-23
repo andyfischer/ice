@@ -184,7 +184,7 @@ Value deep_replace(Value obj /*consumed*/, Value target, Value replacement)
                 obj = insert(obj, target, replacement);
             }
 
-            Value val = get_value_by_index(obj, i);
+            Value val = get_index(obj, i);
             if (equals(val, target))
                 obj = set_value_by_index(obj, i, replacement);
         }
@@ -709,19 +709,26 @@ u32 length(Value list)
     if (is_array(list) || is_array_node(list) || is_array_slice(list))
         return list.array_ptr->length;
 
+    if (is_hashtable(list))
+        return list.hashtable_ptr->length;
+
     return 0;
 }
 
 Value get_index(Value list, int index)
 {
-    ice_assert(index >= 0);
+    if (index < 0)
+        return nil_value();
 
     switch (list.tag) {
     case TAG_POINTER:
         switch (list.object_ptr->type) {
-        case TYPE_ARRAY:
-            ice_assert(index < list.array_ptr->length);
-            return list.array_ptr->items[index];
+        case TYPE_ARRAY: {
+            Array* array = list.array_ptr;
+            if (index >= array->length)
+                return nil_value();
+            return array->items[index];
+        }
         case TYPE_ARRAY_SLICE: {
             ArraySlice* slice = list.array_slice_ptr;
             return get_index(slice->base, index + slice->start_index);
@@ -733,6 +740,12 @@ Value get_index(Value list, int index)
                 return get_index(node->left, index);
             else
                 return get_index(node->right, index - left_len);
+        }
+        case TYPE_HASHTABLE: {
+            Hashtable* ht = list.hashtable_ptr;
+            if (index >= ht->length)
+                return nil_value();
+            return ht->getPair(index)->value;
         }
         }
     }

@@ -117,6 +117,17 @@ void test_grow_ownership()
     decref(t, tcopy);
 }
 
+void test_as_list()
+{
+    Value table = empty_table();
+    table = insert(table, blob_s("a"), blob_s("1"));
+    table = insert(table, blob_s("b"), blob_s("2"));
+    expect(length(table) == 2);
+    expect_equals(get_index(table, 0), "1");
+    expect_equals(get_index(table, 1), "2");
+    decref(table);
+}
+
 void table_test()
 {
     test_case(test_simple);
@@ -125,4 +136,5 @@ void table_test()
     test_case(test_safe_writes);
     test_case(test_grow);
     test_case(test_grow_ownership);
+    test_case(test_as_list);
 }
