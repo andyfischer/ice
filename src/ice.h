@@ -189,7 +189,6 @@ Value insert(Value table /*consumed*/, Value key /*consumed*/, Value val /*consu
 Value table_keys(Value table);
 Value table_values(Value table);
 Value get_key_by_index(Value table, int index);
-Value set_value_by_index(Value table /*consumed*/, int index, Value val /*consumed*/);
 Value delete_key(Value table /*consumed*/, Value key);
 
 // Blob

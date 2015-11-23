@@ -295,23 +295,6 @@ Value get_key_by_index(Value table, int index)
     return nil_value();
 }
 
-Value set_value_by_index(Value table /*consumed*/, int index, Value val /*consumed*/)
-{
-    if (is_empty_table(table))
-        return nil_value();
-
-    if (is_hashtable(table)) {
-        if (!object_is_writeable(table))
-            table = ptr_value(hashtable_shallow_copy(table.hashtable_ptr));
-
-        HashtablePair* pair = table.hashtable_ptr->getPair(index);
-        decref(pair->value);
-        pair->value = val;
-        return table;
-    }
-    return table;
-}
-
 Value table_keys_or_values(Value table, int key_or_value)
 {
     if (is_empty_table(table))

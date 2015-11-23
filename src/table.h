@@ -40,12 +40,12 @@ struct Hashtable {
 
 Hashtable* new_hashtable(u16 capacity);
 void free_hashtable(Hashtable* hashtable);
+Hashtable* hashtable_shallow_copy(Hashtable* ht);
 Value hashtable_key_by_index(Hashtable* ht, int index);
 Value hashtable_value_by_index(Hashtable* ht, int index);
 bool hashtable_equals(Value left, Value right);
 
 Value get_key_by_index(Value table, int index);
-Value set_value_by_index(Value table /*consumed*/, int index);
 Value delete_key(Value table /*consumed*/, Value key);
 
 #if 0

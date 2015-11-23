@@ -81,7 +81,6 @@ void array_iterator_advance(ArrayIterator* it);
 Value array_iterator_current(ArrayIterator* it);
 
 Value take_index(Value list /*maybe modified*/, int index);
-Value set_index(Value list /*consumed*/, int index, Value el /*consumed*/);
 Value slice(Value list /*consumed*/, int start_index, int len);
 Value first(Value list /* consumed */);
 Value rest(Value list /* consumed */);

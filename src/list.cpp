@@ -629,44 +629,4 @@ Value take_index(Value list, int index)
     return incref(get_index(list, index));
 }
 
-Value set_index(Value list, int index, Value el)
-{
-    if (!is_list(list)) {
-        decref(list, el);
-        return nil_value();
-    }
-
-    int list_length = length(list);
-
-    if (index < 0 || index >= list_length) {
-        decref(el);
-        return list;
-    }
-
-    if (is_array(list)) {
-        if (object_is_writeable(list)) {
-            decref(list.array_ptr->items[index]);
-            list.array_ptr->items[index] = el;
-            return list;
-        }
-    }
-
-    // TODO: efficient tricks for ArrayNode & ArraySlice
-
-    // create a new section
-    Array* new_section = new_array(1, 1);
-    new_section->items[0] = el;
-
-    Value out = ptr_value(new_section);
-
-    if (index > 0)
-        out = concat_2(slice(list, 0, index), out);
-
-    if ((index+1) < list_length)
-        out = concat_2(out, slice(list, index+1, list_length));
-
-    return out;
-
-}
-
 } // namespace ice

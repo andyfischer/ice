@@ -186,7 +186,7 @@ Value deep_replace(Value obj /*consumed*/, Value target, Value replacement)
 
             Value val = get_index(obj, i);
             if (equals(val, target))
-                obj = set_value_by_index(obj, i, replacement);
+                obj = set_index(obj, i, replacement);
         }
     }
 
@@ -750,6 +750,63 @@ Value get_index(Value list, int index)
         }
     }
     return nil_value();
+}
+
+Value set_index(Value obj, int index, Value el)
+{
+    switch (obj.tag) {
+    case TAG_POINTER:
+        switch (obj.object_ptr->type) {
+        case TYPE_HASHTABLE: {
+            if (!object_is_writeable(obj))
+                obj = ptr_value(hashtable_shallow_copy(obj.hashtable_ptr));
+
+            HashtablePair* pair = obj.hashtable_ptr->getPair(index);
+            decref(pair->value);
+            pair->value = el;
+            return obj;
+        }
+        }
+        break;
+    default:
+        return obj;
+    }
+
+    if (!is_list(obj)) {
+        decref(obj, el);
+        return nil_value();
+    }
+
+    int list_length = length(obj);
+
+    if (index < 0 || index >= list_length) {
+        decref(el);
+        return obj;
+    }
+
+    if (is_array(obj)) {
+        if (object_is_writeable(obj)) {
+            decref(obj.array_ptr->items[index]);
+            obj.array_ptr->items[index] = el;
+            return obj;
+        }
+    }
+
+    // TODO: efficient tricks for ArrayNode & ArraySlice
+
+    // create a new section
+    Array* new_section = new_array(1, 1);
+    new_section->items[0] = el;
+
+    Value out = ptr_value(new_section);
+
+    if (index > 0)
+        out = concat_2(slice(obj, 0, index), out);
+
+    if ((index+1) < list_length)
+        out = concat_2(out, slice(obj, index+1, list_length));
+
+    return out;
 }
 
 void Value::dump()
