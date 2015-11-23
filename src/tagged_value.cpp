@@ -119,28 +119,6 @@ inline bool is_ex_tag(Value value)
     return value.tag == TAG_EX;
 }
 
-#if 0
-void touch(Value* value)
-{
-    stat_increment(Touch);
-
-    if (is_list(value))
-        list_touch(value);
-    else if (is_hashtable(value))
-        hashtable_touch(value);
-}
-
-bool touch_is_necessary(Value* value)
-{
-    if (is_list(value))
-        return list_touch_is_necessary(value);
-    else if (is_hashtable(value))
-        return hashtable_touch_is_necessary(value);
-
-    return false;
-}
-#endif
-
 bool shallow_equals(Value lhs, Value rhs)
 {
     return lhs.raw == rhs.raw;
@@ -166,7 +144,6 @@ bool equals(Value left, Value right)
     if (shallow_equals(left, right))
         return true;
 
-    // Check builtin container types.
     if (is_blob(left) || is_symbol(left))
         return blob_equals(left, right);
 
@@ -184,6 +161,36 @@ bool equals_str(Value lhs, const char* str)
     if (is_blob(lhs))
         return blob_equals_str(lhs, str);
     return false;
+}
+
+Value deep_replace(Value obj /*consumed*/, Value target, Value replacement)
+{
+    if (equals(obj, target)) {
+        decref(obj);
+        return incref(replacement);
+    }
+
+    if (is_list(obj)) {
+        for (int i=0; i < length(obj); i++) {
+            if (equals(get_index(obj, i), target))
+                obj = set_index(obj, i, replacement);
+        }
+    } else if (is_table(obj)) {
+
+        for (int i=0; i < length(obj); i++) {
+            Value key = get_key_by_index(obj, i);
+            if (equals(key, target)) {
+                obj = delete_key(obj, key);
+                obj = insert(obj, target, replacement);
+            }
+
+            Value val = get_value_by_index(obj, i);
+            if (equals(val, target))
+                obj = set_value_by_index(obj, i, replacement);
+        }
+    }
+
+    return obj;
 }
 
 u32 hashcode(Value val)
@@ -568,51 +575,6 @@ int to_int(Value value)
 
     internal_error("In to_float, type is not an int or float");
     return 0;
-}
-
-Value list_0()
-{
-    return empty_list();
-}
-
-Value list_1(Value el1)
-{
-    Array* array = new_array(1, 1);
-    array->items[0] = el1;
-    return ptr_value(array);
-}
-
-Value list_2(Value el1, Value el2)
-{
-    Array* array = new_array(2, 2);
-    array->items[0] = el1;
-    array->items[1] = el2;
-    return ptr_value(array);
-}
-
-Value list_3(Value el1, Value el2, Value el3)
-{
-    Array* array = new_array(3, 3);
-    array->items[0] = el1;
-    array->items[1] = el2;
-    array->items[2] = el3;
-    return ptr_value(array);
-}
-
-Value list_4(Value el1, Value el2, Value el3, Value el4)
-{
-    Array* array = new_array(4, 4);
-    array->items[0] = el1;
-    array->items[1] = el2;
-    array->items[2] = el3;
-    array->items[3] = el4;
-    return ptr_value(array);
-}
-
-Value from_str(const char* str)
-{
-    u32 size = strlen(str);
-    return ptr_value(fblob_fill(new_fblob(size), str, size));
 }
 
 Value blob_s(const char* str)

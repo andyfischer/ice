@@ -94,6 +94,8 @@ bool equals(Value lhs, Value rhs);
 bool equals_str(Value lhs, const char* str);
 bool equals_symbol(Value value, const char* str);
 
+Value deep_replace(Value value /*consumed*/, Value target, Value replacement);
+
 void print(Value value);
 void println(Value value);
 void print_raw(Value value);
@@ -186,10 +188,13 @@ Value set_key(Value table /*consumed*/, Value key /*consumed*/, Value val /*cons
 Value insert(Value table /*consumed*/, Value key /*consumed*/, Value val /*consumed*/);
 Value table_keys(Value table);
 Value table_values(Value table);
+Value get_key_by_index(Value table, int index);
+Value get_value_by_index(Value table, int index);
+Value set_value_by_index(Value table /*consumed*/, int index, Value val /*consumed*/);
+Value delete_key(Value table /*consumed*/, Value key);
 
 // Blob
 Value new_blob(u32 size);
-Value from_str(const char* str);
 Value blob_s(const char* str);
 Value blob_p(void* ptr);
 void* as_pointer(Value blob);

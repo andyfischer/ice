@@ -13,6 +13,6 @@ add gdb /ice/gdb
 add valgrind /ice/valgrind
 
 workdir /ice
-run make
+run make -j4
 
 env PATH $PATH:/ice/build

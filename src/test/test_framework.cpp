@@ -144,7 +144,7 @@ void test_case_(test_case_func func, const char* name)
     g_current_test.param_count = 0;
 
     nullify(&g_test_case_name);
-    g_test_case_name = from_str(name);
+    g_test_case_name = blob_s(name);
 
     func();
 }
@@ -152,7 +152,7 @@ void test_case_(test_case_func func, const char* name)
 void test_suite_(test_case_func func, const char* name)
 {
     nullify(&g_suite_name);
-    g_suite_name = from_str(name);
+    g_suite_name = blob_s(name);
     func();
 }
 

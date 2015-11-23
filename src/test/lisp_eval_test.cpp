@@ -12,7 +12,7 @@ void lisp_test_atom()
 
 void lisp_test_empty_list()
 {
-    expect_equals(eval(list_0()), "nil");
+    expect_equals(eval(list_0()), "[]");
 }
 
 void lisp_test_if()

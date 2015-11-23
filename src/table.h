@@ -44,4 +44,28 @@ Value hashtable_key_by_index(Hashtable* ht, int index);
 Value hashtable_value_by_index(Hashtable* ht, int index);
 bool hashtable_equals(Value left, Value right);
 
+Value get_key_by_index(Value table, int index);
+Value get_value_by_index(Value table, int index);
+Value set_value_by_index(Value table /*consumed*/, int index);
+Value delete_key(Value table /*consumed*/, Value key);
+
+#if 0
+struct TableIterator {
+    Value table;
+    int index;
+
+    ArrayIterator(Value);
+    Value key() { return table_iterator_current_key(this); }
+    Value value() { return table_iterator_current_value(this); }
+    bool valid() { return table_iterator_valid(this); }
+    void advance() { return table_iterator_advance(this); }
+};
+
+void table_iterator_start(TableIterator* it, Value table);
+bool table_iterator_valid(TableIterator* it);
+void table_iterator_advance(TableIterator* it);
+Value table_iterator_current_key(TableIterator* it);
+Value table_iterator_current_value(TableIterator* it);
+#endif
+
 } // namespace ice

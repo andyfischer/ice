@@ -370,6 +370,45 @@ u32 circular_shift(u32 value, int shift)
 
 #endif
 
+Value list_0()
+{
+    return empty_list();
+}
+
+Value list_1(Value el1)
+{
+    Array* array = new_array(1, 1);
+    array->items[0] = el1;
+    return ptr_value(array);
+}
+
+Value list_2(Value el1, Value el2)
+{
+    Array* array = new_array(2, 2);
+    array->items[0] = el1;
+    array->items[1] = el2;
+    return ptr_value(array);
+}
+
+Value list_3(Value el1, Value el2, Value el3)
+{
+    Array* array = new_array(3, 3);
+    array->items[0] = el1;
+    array->items[1] = el2;
+    array->items[2] = el3;
+    return ptr_value(array);
+}
+
+Value list_4(Value el1, Value el2, Value el3, Value el4)
+{
+    Array* array = new_array(4, 4);
+    array->items[0] = el1;
+    array->items[1] = el2;
+    array->items[2] = el3;
+    array->items[3] = el4;
+    return ptr_value(array);
+}
+
 bool list_equals(Value left, Value right)
 {
     if (!is_list(right))

@@ -44,6 +44,26 @@ void free_hashtable(Hashtable* hashtable)
     free(hashtable);
 }
 
+Hashtable* hashtable_shallow_copy(Hashtable* ht)
+{
+    int capacity = ht->capacity;
+    size_t size = sizeof(Hashtable)
+        + sizeof(BucketItem) * capacity
+        + sizeof(HashtablePair) * capacity;
+
+    Hashtable* newht = (Hashtable*) ice_malloc(size);
+
+    memcpy(newht, ht, size);
+    newht->refcount = 1;
+
+    for (int i=0; i < capacity; i++) {
+        HashtablePair* pair = newht->getPair(i);
+        incref(pair->key);
+        incref(pair->value);
+    }
+    return newht;
+}
+
 Value hashtable_key_by_index(Hashtable* ht, int index) { return ht->getPair(index)->key; }
 Value hashtable_value_by_index(Hashtable* ht, int index) { return ht->getPair(index)->value; }
 
@@ -260,6 +280,53 @@ Value get_key(Value table, Value key)
     return nil_value();
 }
 
+Value get_key_by_index(Value table, int index)
+{
+    if (is_empty_table(table))
+        return nil_value();
+
+    if (is_hashtable(table)) {
+        Hashtable* ht = table.hashtable_ptr;
+        if (index < 0 || index >= ht->length)
+            return nil_value();
+
+        return ht->getPair(index)->key;
+    }
+    return nil_value();
+}
+
+Value get_value_by_index(Value table, int index)
+{
+    if (is_empty_table(table))
+        return nil_value();
+
+    if (is_hashtable(table)) {
+        Hashtable* ht = table.hashtable_ptr;
+        if (index < 0 || index >= ht->length)
+            return nil_value();
+
+        return ht->getPair(index)->value;
+    }
+    return nil_value();
+}
+
+Value set_value_by_index(Value table /*consumed*/, int index, Value val /*consumed*/)
+{
+    if (is_empty_table(table))
+        return nil_value();
+
+    if (is_hashtable(table)) {
+        if (!object_is_writeable(table))
+            table = ptr_value(hashtable_shallow_copy(table.hashtable_ptr));
+
+        HashtablePair* pair = table.hashtable_ptr->getPair(index);
+        decref(pair->value);
+        pair->value = val;
+        return table;
+    }
+    return table;
+}
+
 Value table_keys_or_values(Value table, int key_or_value)
 {
     if (is_empty_table(table))
@@ -277,5 +344,33 @@ Value table_keys_or_values(Value table, int key_or_value)
 
 Value table_keys(Value table) { return table_keys_or_values(table, 0); }
 Value table_values(Value table) { return table_keys_or_values(table, 1); }
+
+Value delete_key(Value table /*consumed*/, Value key)
+{
+    // TODO
+    return table;
+}
+
+#if 0
+void table_iterator_start(TableIterator* it, Value table)
+{
+}
+
+bool table_iterator_valid(TableIterator* it)
+{
+}
+
+void table_iterator_advance(TableIterator* it)
+{
+}
+
+Value table_iterator_current_key(TableIterator* it)
+{
+}
+
+Value table_iterator_current_value(TableIterator* it)
+{
+}
+#endif
 
 } // namespace ice
