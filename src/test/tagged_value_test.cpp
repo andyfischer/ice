@@ -104,6 +104,15 @@ void test_hashcode_lists()
     decref(a,b,c);
 }
 
+void test_deep_replace()
+{
+    expect_equals(deep_replace(int_value(1), int_value(1), int_value(2)), "2");
+    expect_equals(deep_replace(int_value(1), int_value(2), int_value(3)), "1");
+
+    Value a = list_2(int_value(1), int_value(2));
+    expect_equals_and_take(deep_replace(a, int_value(1), int_value(3)), "[3, 2]");
+}
+
 void tagged_value_test()
 {
     test_case(test_data_structure_sizes);
@@ -112,4 +121,5 @@ void tagged_value_test()
     test_case(test_incref_decref);
     test_case(test_hashcode_primitives);
     test_case(test_hashcode_lists);
+    test_case(test_deep_replace);
 }

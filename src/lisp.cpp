@@ -168,6 +168,16 @@ Value eval_set_index(Value env, Value expr)
     return set_index(list, index.i, item);
 }
 
+Value eval_deep_replace(Value env, Value expr)
+{
+    Value obj, target, replacement;
+    args_3(env, expr, &obj, &target, &replacement);
+
+    Value out = deep_replace(obj, target, replacement);
+    decref(target, replacement);
+    return out;
+}
+
 func_2 find_builtin_func(Value name)
 {
     if (equals_symbol(name, "append"))
@@ -200,6 +210,8 @@ func_2 find_builtin_func(Value name)
         return eval_get_index;
     else if (equals_symbol(name, "set-index"))
         return eval_set_index;
+    else if (equals_symbol(name, "deep-replace"))
+        return eval_deep_replace;
     
     return NULL;
 }
