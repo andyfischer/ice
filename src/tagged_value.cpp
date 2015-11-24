@@ -173,7 +173,7 @@ Value deep_replace(Value obj /*consumed*/, Value target, Value replacement)
     if (is_list(obj)) {
         for (int i=0; i < length(obj); i++) {
             if (equals(get_index(obj, i), target))
-                obj = set_index(obj, i, replacement);
+                obj = set_index(obj, i, incref(replacement));
         }
     } else if (is_table(obj)) {
 
@@ -181,12 +181,12 @@ Value deep_replace(Value obj /*consumed*/, Value target, Value replacement)
             Value key = get_key_by_index(obj, i);
             if (equals(key, target)) {
                 obj = delete_key(obj, key);
-                obj = insert(obj, target, replacement);
+                obj = insert(obj, incref(target), incref(replacement));
             }
 
             Value val = get_index(obj, i);
             if (equals(val, target))
-                obj = set_index(obj, i, replacement);
+                obj = set_index(obj, i, incref(replacement));
         }
     }
 

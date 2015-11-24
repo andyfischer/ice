@@ -9,54 +9,47 @@
 
 namespace ice {
 
-Value args_1(Value env, Value expr /*consumed*/)
+Value args_1(Value expr /*consumed*/)
 {
-    Value arg = eval(env, take_index(expr, 1));
+    Value arg = eval(take_index(expr, 1));
     decref(expr);
     return arg;
 }
 
-void args_2(Value env, Value expr /*consumed*/, Value* arg1, Value* arg2)
+void args_2(Value expr /*consumed*/, Value* arg1, Value* arg2)
 {
-    *arg1 = eval(env, take_index(expr, 1));
-    *arg2 = eval(env, take_index(expr, 2));
+    *arg1 = eval(take_index(expr, 1));
+    *arg2 = eval(take_index(expr, 2));
     decref(expr);
 }
 
-void args_3(Value env, Value expr /*consumed*/, Value* arg1, Value* arg2, Value* arg3)
+void args_3(Value expr /*consumed*/, Value* arg1, Value* arg2, Value* arg3)
 {
-    *arg1 = eval(env, take_index(expr, 1));
-    *arg2 = eval(env, take_index(expr, 2));
-    *arg3 = eval(env, take_index(expr, 3));
+    *arg1 = eval(take_index(expr, 1));
+    *arg2 = eval(take_index(expr, 2));
+    *arg3 = eval(take_index(expr, 3));
     decref(expr);
 }
 
-Value args_n(Value env, Value expr /*consumed*/)
+Value args_n(Value expr /*consumed*/)
 {
     Value s = slice(expr, 1, length(expr));
-    return map_1(s, eval, env);
+    return map(s, eval);
 }
 
-Value eval_let(Value env, Value expr)
+Value eval_let(Value expr)
 {
-    env = incref(env);
-
     Value bindings = take_index(expr, 1);
 
-    // Bindings
-    ArrayIterator it(bindings);
+    for (int i=0; i < length(bindings); i += 2) {
 
-    while (it.valid()) {
-        Value name = incref(it.current());
+        Value name = take_index(bindings, i);
+        Value val = take_index(bindings, i + 1);
 
-        it.advance();
+        bindings = deep_replace(bindings, name, val);
+        expr = deep_replace(expr, name, val);
 
-        Value val = nil_value();
-        if (it.valid())
-            val = eval(env, incref(it.current()));
-
-        env = insert(env, name, val);
-        it.advance();
+        decref(name, val);
     }
 
     decref(bindings);
@@ -66,44 +59,44 @@ Value eval_let(Value env, Value expr)
 
     for (int i=2; i < length(expr); i++) {
         decref(out);
-        out = eval(env, take_index(expr, i));
+        out = eval(take_index(expr, i));
     }
 
-    decref(env, expr);
+    decref(expr);
 
     return out;
 }
 
-Value eval_append(Value env, Value expr)
+Value eval_append(Value expr)
 {
     Value l, r;
-    args_2(env, expr, &l, &r);
+    args_2(expr, &l, &r);
     return append(l, r);
 }
 
-Value eval_concat(Value env, Value expr) { return concat_n(args_n(env, expr)); }
-Value eval_list(Value env, Value expr) { return args_n(env, expr); }
+Value eval_concat(Value expr) { return concat_n(args_n(expr)); }
+Value eval_list(Value expr) { return args_n(expr); }
 
-Value eval_print(Value env, Value expr)
+Value eval_print(Value expr)
 {
-    Value a = args_1(env, expr);
+    Value a = args_1(expr);
     print(a);
     return a;
 }
 
-Value eval_println(Value env, Value expr)
+Value eval_println(Value expr)
 {
-    Value a = args_1(env, expr);
+    Value a = args_1(expr);
     println(a);
     return a;
 }
 
-Value eval_first(Value env, Value expr) { return first(args_1(env, expr)); }
-Value eval_rest(Value env, Value expr) { return rest(args_1(env, expr)); }
+Value eval_first(Value expr) { return first(args_1(expr)); }
+Value eval_rest(Value expr) { return rest(args_1(expr)); }
 
-Value eval_if(Value env, Value expr)
+Value eval_if(Value expr)
 {
-    Value cond = eval(env, take_index(expr, 1));
+    Value cond = eval(take_index(expr, 1));
 
     Value result;
     if (cond == false_value() || cond == nil_value())
@@ -117,9 +110,9 @@ Value eval_if(Value env, Value expr)
     return result;
 }
 
-Value eval_equals(Value env, Value expr)
+Value eval_equals(Value expr)
 {
-    Value args = args_n(env, expr);
+    Value args = args_n(expr);
     if (length(args) < 2) {
         decref(args);
         return true_value();
@@ -140,10 +133,10 @@ Value eval_equals(Value env, Value expr)
     return bool_value(result);
 }
 
-Value eval_get_index(Value env, Value expr)
+Value eval_get_index(Value expr)
 {
     Value list, index;
-    args_2(env, expr, &list, &index);
+    args_2(expr, &list, &index);
 
     if (!is_int(index)) {
         decref(list, index);
@@ -155,10 +148,10 @@ Value eval_get_index(Value env, Value expr)
     return out;
 }
 
-Value eval_set_index(Value env, Value expr)
+Value eval_set_index(Value expr)
 {
     Value list, index, item;
-    args_3(env, expr, &list, &index, &item);
+    args_3(expr, &list, &index, &item);
 
     if (!is_int(index)) {
         decref(index, item);
@@ -168,17 +161,17 @@ Value eval_set_index(Value env, Value expr)
     return set_index(list, index.i, item);
 }
 
-Value eval_deep_replace(Value env, Value expr)
+Value eval_deep_replace(Value expr)
 {
     Value obj, target, replacement;
-    args_3(env, expr, &obj, &target, &replacement);
+    args_3(expr, &obj, &target, &replacement);
 
     Value out = deep_replace(obj, target, replacement);
     decref(target, replacement);
     return out;
 }
 
-func_2 find_builtin_func(Value name)
+func_1 find_builtin_func(Value name)
 {
     if (equals_symbol(name, "append"))
         return eval_append;
@@ -216,7 +209,7 @@ func_2 find_builtin_func(Value name)
     return NULL;
 }
 
-Value eval(Value env /*consumed*/, Value expr /*consumed*/)
+Value eval(Value expr /*consumed*/)
 {
     if (equals_symbol(expr, "true")) {
         decref(expr);
@@ -228,36 +221,23 @@ Value eval(Value env /*consumed*/, Value expr /*consumed*/)
         return false_value();
     }
 
-    if (is_symbol(expr)) {
-        Value val = incref(get_key(env, expr));
-        if (val != nil_value()) {
-            decref(expr);
-            return val;
-        }
-    }
-
     if (!is_list(expr))
         return expr;
 
     Value arg0 = take_index(expr, 0);
     if (is_list(arg0))
-        arg0 = eval(env, arg0);
+        arg0 = eval(arg0);
 
     if (is_symbol(arg0)) {
-        func_2 builtin = find_builtin_func(arg0);
+        func_1 builtin = find_builtin_func(arg0);
         if (builtin != NULL) {
             decref(arg0);
-            return builtin(env, expr);
+            return builtin(expr);
         }
     }
 
     expr = set_index(expr, 0, arg0);
     return expr;
-}
-
-Value eval(Value expr /*consumed*/)
-{
-    return eval(empty_table(), expr);
 }
 
 } // namespace ice
