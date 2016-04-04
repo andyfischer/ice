@@ -1,0 +1,1 @@
+make build/test && gdb build/test --eval-command run

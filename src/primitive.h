@@ -2,11 +2,9 @@
 
 #pragma once
 
-namespace ice {
+i64 ice_atoi(Value blob);
+f64 ice_atof(Value blob);
 
-i64 atoi(Value blob);
-f64 atof(Value blob);
+f32 to_float(Value v);
 
-Value inc(Value i);
-
-} // namespace ice
+Value increment(Value i);

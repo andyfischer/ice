@@ -1,0 +1,11 @@
+#include "src/common_headers.h"
+
+#include "src/blob.c"
+#include "src/common.c"
+#include "src/comprehension.c"
+#include "src/list.c"
+#include "src/perf.c"
+#include "src/primitive.c"
+#include "src/strings.c"
+#include "src/table.c"
+#include "src/tagged_value.c"

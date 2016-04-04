@@ -1,8 +1,8 @@
 
-CMD=./$*
+CMD=$*
 
 if [[ $# -eq 0 ]] ; then
     CMD=bash
 fi
 
-docker build -t='ice-debug' . && docker run -t -i --rm ice-debug sh -c $CMD
+docker run -t -i --rm -v `pwd`:/ice -w /ice ice-dev $CMD
